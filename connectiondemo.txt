@@ -1,0 +1,220 @@
+Partial Public Class _Default
+    Inherits System.Web.UI.Page
+    Dim cnstring As String = ConfigurationManager.AppSettings("cnStr").ToString()
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        If Not IsPostBack Then
+            Display()
+        End If
+    End Sub
+
+    Sub Display()
+        Dim cn As New OleDb.OleDbConnection(cnstring)
+        Dim cmd As New OleDb.OleDbCommand()
+        Dim rd As OleDb.OleDbDataReader
+
+        Try
+            cn.Open()
+            cmd.Connection = cn
+            cmd.CommandType = CommandType.Text
+            cmd.CommandText = "select * from prod_mst"
+            rd = cmd.ExecuteReader()
+
+            GridView1.DataSource = rd
+            GridView1.DataBind()
+
+        Catch ex As Exception
+            MsgBox(ex.Message)
+        Finally
+            cn.Close()
+
+        End Try
+    End Sub
+
+
+    Protected Sub Button1_Click(ByVal sender As Object, ByVal e As EventArgs) Handles Button1.Click
+        Insert()
+        Display()
+        ClearAll()
+    End Sub
+
+    Sub Insert()
+        ' Insert Records
+        Dim cn As New OleDb.OleDbConnection(cnstring)
+        Dim cmd As New OleDb.OleDbCommand()
+
+
+        Try
+            cn.Open()
+            cmd.Connection = cn
+            cmd.CommandType = CommandType.Text
+
+
+            'Dim apppath As String
+            'apppath = Request.PhysicalApplicationPath
+            'Dim savepath As String
+            'If FileUpload1.HasFile = True Then
+
+            '    Dim fext As String = System.IO.Path.GetExtension(FileUpload1.FileName).ToLower
+            '    'If String.Compare(fext, ".jpg") = True Then
+
+            '    savepath = apppath + "UPLOAD\" + Server.HtmlEncode(FileUpload1.FileName)
+            '    FileUpload1.SaveAs(savepath)
+            '    lblStatus.Text = "file upload successfully"
+            '    'Else
+            '    ' End If
+
+            '    ' lblStatus.Text = "please select jpeg file"
+            'Else
+            '    lblStatus.Text = "file is not successfully add"
+            'End If
+
+
+
+
+            cmd.CommandText = "insert into prod_mst values(" & CInt(TextBox1.Text) & ",'" & TextBox2.Text & "'," & CInt(TextBox3.Text) & "," & CInt(TextBox4.Text) & "," & CInt(TextBox5.Text) & ",'" & savepath & "')"
+            cmd.ExecuteNonQuery()
+
+        Catch ex As Exception
+            MsgBox(ex.Message)
+        Finally
+            cn.Close()
+
+        End Try
+    End Sub
+
+    Sub ClearAll()
+        TextBox1.Text = Nothing
+        TextBox2.Text = Nothing
+        TextBox3.Text = Nothing
+        TextBox4.Text = Nothing
+        TextBox5.Text = Nothing
+    End Sub
+
+    Protected Sub Button2_Click(ByVal sender As Object, ByVal e As EventArgs) Handles Button2.Click
+        Update()
+        Display()
+        ClearAll()
+    End Sub
+    Sub Update()
+        ' Update Records
+        Dim cn As New OleDb.OleDbConnection(cnstring)
+        Dim cmd As New OleDb.OleDbCommand()
+
+        Try
+            cn.Open()
+            cmd.Connection = cn
+            cmd.CommandType = CommandType.Text
+            cmd.CommandText = "update prod_mst  set pname ='" & TextBox2.Text & "', qty =" & CInt(TextBox3.Text) & ", price = " & CInt(TextBox4.Text) & ",totprice = " & CInt(TextBox5.Text) & ",pimage='" & FileUpload1.FileName & "' where prodid = " & CInt(TextBox1.Text)
+            cmd.ExecuteNonQuery()
+
+
+
+        Catch ex As Exception
+            MsgBox(ex.Message)
+        Finally
+            cn.Close()
+
+        End Try
+    End Sub
+    Protected Sub Button3_Click(ByVal sender As Object, ByVal e As EventArgs) Handles Button3.Click
+        ' Delete Records
+        Dim cn As New OleDb.OleDbConnection(cnstring)
+        Dim cmd As New OleDb.OleDbCommand()
+
+
+        Try
+            cn.Open()
+            cmd.Connection = cn
+            cmd.CommandType = CommandType.Text
+            cmd.CommandText = "delete from prod_mst where prodid = " & CInt(TextBox1.Text)
+            cmd.ExecuteNonQuery()
+
+
+
+        Catch ex As Exception
+            MsgBox(ex.Message)
+        Finally
+            cn.Close()
+
+        End Try
+        Display()
+        ClearAll()
+    End Sub
+
+    Protected Sub LinkButton1_Click(ByVal sender As Object, ByVal e As EventArgs)
+        Dim btnedit As LinkButton = DirectCast(sender, LinkButton)
+        Dim row As GridViewRow = DirectCast(btnedit.NamingContainer, GridViewRow)
+        Dim lblid As Label = DirectCast(row.FindControl("Label1"), Label)
+
+        Dim cn As New OleDb.OleDbConnection(cnstring)
+        Dim cmd As New OleDb.OleDbCommand()
+        Dim rd As OleDb.OleDbDataReader
+
+        Try
+            cn.Open()
+            cmd.Connection = cn
+            cmd.CommandType = CommandType.Text
+            cmd.CommandText = "select * from prod_mst where prodid = " & CInt(lblid.Text)
+            rd = cmd.ExecuteReader()
+
+            While rd.Read()
+
+                TextBox1.Text = rd(0).ToString()
+                TextBox2.Text = rd(1).ToString()
+                TextBox3.Text = rd(2).ToString()
+                TextBox4.Text = rd(3).ToString()
+                TextBox5.Text = rd(4).ToString()
+                Image2.ImageUrl = rd(5).ToString()
+            End While
+
+        Catch ex As Exception
+            MsgBox(ex.Message)
+        Finally
+            cn.Close()
+
+        End Try
+
+        btnAction.Text = "MODIFY"
+    End Sub
+
+    Protected Sub LinkButton2_Click(ByVal sender As Object, ByVal e As EventArgs)
+        Dim btnedit As LinkButton = DirectCast(sender, LinkButton)
+        Dim row As GridViewRow = DirectCast(btnedit.NamingContainer, GridViewRow)
+        Dim lblid As Label = DirectCast(row.FindControl("Label1"), Label)
+
+        Dim cn As New OleDb.OleDbConnection(cnstring)
+        Dim cmd As New OleDb.OleDbCommand()
+       
+        Try
+            cn.Open()
+            cmd.Connection = cn
+            cmd.CommandType = CommandType.Text
+            cmd.CommandText = "delete from prod_mst where prodid = " & CInt(lblid.Text)
+            cmd.ExecuteNonQuery()
+        Catch ex As Exception
+            MsgBox(ex.Message)
+        Finally
+            cn.Close()
+
+        End Try
+        Display()
+    End Sub
+
+    Protected Sub Button_Click(ByVal sender As Object, ByVal e As EventArgs) Handles Button.Click
+        Display()
+    End Sub
+
+    Protected Sub btnAction_Click(ByVal sender As Object, ByVal e As EventArgs) Handles btnAction.Click
+        If btnAction.Text = "INSERT" Then
+            Insert()
+            Display()
+            ClearAll()
+        ElseIf btnAction.Text = "MODIFY" Then
+            Update()
+
+            Display()
+            ClearAll()
+            btnAction.Text = "INSERT"
+        End If
+    End Sub
+End Class
